@@ -1,11 +1,22 @@
+.likes-rating-container {
+    margin: 1rem 0;
+}
 .likes-rating-container .like {
     display: inline-block;
     padding: 0.2rem 0.5rem;
+    transition: all .15s ease;
+
+}
+.likes-rating-container .like:active {
+    transform: scale(1.25);
 }
 .likes-rating-container .like-up {
     background-color: green;
+    border-radius: 3px 0 0 3px;
 }
 
 .likes-rating-container .like-down {
     background-color: red;
+    margin-left: -3px;
+    border-radius: 0 3px 3px 0;
 }
