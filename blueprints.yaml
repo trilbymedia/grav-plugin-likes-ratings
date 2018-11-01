@@ -1,6 +1,6 @@
 name: Likes Ratings
 version: 0.1.0
-description: Simple Likes and Dislikes ratings plugin
+description: Simple Likes and Dislikes ratings plugin that uses a SQLite DB
 icon: plug
 author:
   name: Trilby Media
@@ -11,6 +11,9 @@ keywords: grav, plugin, etc
 bugs: https://github.com/trilbymedia/grav-plugin-likes-ratings/issues
 docs: https://github.com/trilbymedia/grav-plugin-likes-ratings/blob/develop/README.md
 license: MIT
+
+dependencies:
+- { name: database, version: '>=0.1.0' }
 
 form:
   validation: strict
@@ -25,7 +28,52 @@ form:
         0: PLUGIN_ADMIN.DISABLED
       validate:
         type: bool
-    text_var:
+
+    built_in_css:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.USE_BUILT_IN_CSS
+      highlight: 1
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+
+    callback:
       type: text
-      label: PLUGIN_LIKES_RATINGS.TEXT_VARIABLE
-      help: PLUGIN_LIKES_RATINGS.TEXT_VARIABLE_HELP
+      size: medium
+      label: PLUGIN_LIKES_RATINGS.CALLBACK_URL
+      help: PLUGIN_LIKES_RATINGS.CALLBACK_URL_HELP
+
+    unique_ip_check:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.UNIQUE_IP_CHECK
+      highlight: 1
+      help: PLUGIN_LIKES_RATINGS.UNIQUE_IP_CHECK_HELP
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+
+    readonly:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.READ_ONLY
+      help: PLUGIN_LIKES_RATINGS.READ_ONLY_HELP
+      highlight: 0
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+
+    disable_after_vote:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.DISABLE_AFTER_VOTE
+      help: PLUGIN_LIKES_RATINGS.DISABLE_AFTER_VOTE_HELP
+      highlight: 1
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
