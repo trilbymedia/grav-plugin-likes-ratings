@@ -49,7 +49,7 @@ class LikesRatingsPlugin extends Plugin
     public function onPluginsInitialized()
     {
         $likes = new Likes($this->config->get('plugins.likes-ratings'));
-        
+
         $this->grav['likes'] = $likes;
 
         $this->enable([
@@ -70,6 +70,7 @@ class LikesRatingsPlugin extends Plugin
             // try to add the vote
             $result = $this->addVote();
 
+            header('Content-Type: application/json');
             echo json_encode(['status' => $result[0], 'message' => $result[1], 'count' => $result[2] ?? -1]);
             exit();
         }
@@ -94,7 +95,6 @@ class LikesRatingsPlugin extends Plugin
         }
         $this->grav['assets']
             ->add('jquery', 101)
-            ->addJs('plugin://likes-ratings/assets/jquery.likes-ratings.js')
             ->addJs('plugin://likes-ratings/assets/likes-ratings.js');
     }
 

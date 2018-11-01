@@ -1,13 +1,13 @@
-{% set likes_data = {id:id, uri:uri, options:{readOnly: false, disableAfterRate: false}} %}
+{% set likes_data = { id: id, uri: uri, options: { readOnly: false, disableAfterRate: false } } %}
 {% set likes_id = id|hyphenize %}
-<div class="likes-rating-container" data-likes-rating="{{ likes_data|json_encode|e('html_attr') }}">
-  <div id="t0-{{ likes_id }}" class="like like-up">
+<div class="likes-ratings-container" data-likes-id="{{ id }}" data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
+  <div class="like like-up" data-likes-type="ups">
     <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
-    <span id="likes0-count-{{ likes_id }}">{{ ups }}</span>
+    <span data-likes-status>{{ ups }}</span>
   </div>
-  <div id="t1-{{ likes_id }}" class="like like-down">
+
+  <div class="like like-down" data-likes-type="downs">
     <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-    <span id="likes1-count-{{ likes_id }}">{{ downs }}</span>
+    <span data-likes-status>{{ downs }}</span>
   </div>
-  <input type="hidden" id="input-{{ likes_id }}" value="">
 </div>

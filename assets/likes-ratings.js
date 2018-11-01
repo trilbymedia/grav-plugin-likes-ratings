@@ -1,35 +1,27 @@
-//var realoadThumb = jQuery(function() {
-jQuery(function() {
-    $(".like").click(function(){
-        var id = $(this).attr('id');
-        var res = id.substr(1, 1);
-        var cid = '#input-'+id.substr(3);
-        $( cid ).val( res );
-    });
+((function($) {
+    $(document).ready(function() {
+        $(document).on('click', '[data-likes-ratings] [data-likes-type]', function(event) {
+            var target = $(event.currentTarget);
+            var container = target.closest('[data-likes-ratings');
+            var data = container.data('likesRatings');
+            var type = target.data('likesType');
 
-    jQuery('[data-likes-rating]').each(function(index, element) {
-        element = $(element);
-        var data = element.data('likes-rating'),
-            options = jQuery.extend(data.options, {
-                callback: function(element) {
-                    $.post(data.uri, { id: data.id, type: $('#input-'+data.id).val() })
-                    .done(function() {
-                        var type = $('#input-'+data.id).val()
-                        var existsIp = 't'+type+'-'+data.id;
-                        if ( !$( '#'+existsIp ).hasClass( "true" ) ) {
-                            var id = 'likes'+type+'-count-'+data.id;
-                            var number = $( '#'+id ).text();
-                            number++;
-                            $( '#'+id ).text(number);
-                            console.log('success');
+            if (data.options.readOnly || container.data('disableRatings')) { return true; }
+
+            $.ajax({
+                type: 'POST',
+                url: data.uri,
+                data: { id: data.id, type: type },
+                success: function (response) {
+                    if (response.status) {
+                        var query = '[data-likes-id="' + data.id + '"] [data-likes-type="' + type + '"] [data-likes-status]';
+                        $(query).text(response.count);
+                        if (data.options.disableAfterRate) {
+                            container.data('disableRatings', true);
                         }
-                    })
-                    .fail(function() {
-                        console.log('fail');
-                    });
+                    }
                 }
             });
-        element.likesRatings(options);
+        });
     });
-
-});
+})(jQuery));
