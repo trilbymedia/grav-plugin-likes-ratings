@@ -7,6 +7,9 @@ use Grav\Plugin\Database\PDO;
 
 class Likes
 {
+    const UP = 'ups';
+    const DOWN = 'downs';
+
     /** @var PDO */
     protected $db;
 
