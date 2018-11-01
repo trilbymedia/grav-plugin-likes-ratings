@@ -1,4 +1,11 @@
 en:
   PLUGIN_LIKES_RATINGS:
-    TEXT_VARIABLE: Text Variable
-    TEXT_VARIABLE_HELP: Text to add to the top of a page
+    USE_BUILT_IN_CSS: Use Built in CSS
+    CALLBACK_URL: Callback URL
+    CALLBACK_URL_HELP: A path that the plugin will look for when processing Ajax calls
+    UNIQUE_IP_CHECK: Unique IP Check
+    UNIQUE_IP_CHECK_HELP: Ensures that a particular IP can only vote once
+    READ_ONLY: Read Only
+    READ_ONLY_HELP: Set to readonly to disable all interaction
+    DISABLE_AFTER_VOTE: Disable After Vote
+    DISABLE_AFTER_VOTE_HELP: Disable the interaction after the user has already made the vote
