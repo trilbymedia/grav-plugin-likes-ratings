@@ -1,0 +1,11 @@
+.likes-rating-container .like {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+}
+.likes-rating-container .like-up {
+    background-color: green;
+}
+
+.likes-rating-container .like-down {
+    background-color: red;
+}

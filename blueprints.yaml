@@ -1,0 +1,31 @@
+name: Likes Ratings
+version: 0.1.0
+description: Simple Likes and Dislikes ratings plugin
+icon: plug
+author:
+  name: Trilby Media
+  email: hello@trilby.media
+homepage: https://github.com/trilbymedia/grav-plugin-likes-ratings
+demo: http://demo.yoursite.com
+keywords: grav, plugin, etc
+bugs: https://github.com/trilbymedia/grav-plugin-likes-ratings/issues
+docs: https://github.com/trilbymedia/grav-plugin-likes-ratings/blob/develop/README.md
+license: MIT
+
+form:
+  validation: strict
+  fields:
+    enabled:
+      type: toggle
+      label: PLUGIN_ADMIN.PLUGIN_STATUS
+      highlight: 1
+      default: 0
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+    text_var:
+      type: text
+      label: PLUGIN_LIKES_RATINGS.TEXT_VARIABLE
+      help: PLUGIN_LIKES_RATINGS.TEXT_VARIABLE_HELP
