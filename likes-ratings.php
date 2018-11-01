@@ -49,8 +49,11 @@ class LikesRatingsPlugin extends Plugin
     public function onPluginsInitialized()
     {
         $likes = new Likes($this->config->get('plugins.likes-ratings'));
-
         $this->grav['likes'] = $likes;
+
+        if ($this->isAdmin()) {
+            return;
+        }
 
         $this->enable([
             'onPageInitialized'     => ['onPageInitialized', 0],
@@ -82,8 +85,7 @@ class LikesRatingsPlugin extends Plugin
     }
 
     public function onTwigInitialized() {
-        $twig = $this->grav['twig'];
-        $twig->twig()->addFunction(
+        $this->grav['twig']->twig()->addFunction(
             new \Twig_SimpleFunction('likes', [$this, 'generateLikes'])
         );
     }
