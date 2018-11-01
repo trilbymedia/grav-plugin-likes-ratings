@@ -14,7 +14,7 @@
                 data: { id: data.id, type: type },
                 success: function (response) {
                     if (response.status) {
-                        var query = '[data-likes-id="' + data.id + '"] [data-likes-type="' + type + '"] [data-likes-status]';
+                        var query = '[data-likes-id="' + data.id + '"] [data-likes-type="' + type + '"] [data-likes-status], [data-likes-id="' + data.id + '"][data-likes-type="' + type + '"] [data-likes-status]';
                         $(query).text(response.count);
                         if (data.options.disableAfterRate) {
                             container.data('disableRatings', true);
