@@ -2,7 +2,7 @@
     $(document).ready(function() {
         $(document).on('click', '[data-likes-ratings] [data-likes-type]', function(event) {
             var target = $(event.currentTarget);
-            var container = target.closest('[data-likes-ratings');
+            var container = target.closest('[data-likes-ratings]');
             var data = container.data('likesRatings');
             var type = target.data('likesType');
 
