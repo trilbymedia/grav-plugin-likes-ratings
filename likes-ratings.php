@@ -63,7 +63,11 @@ class LikesRatingsPlugin extends Plugin
         ]);
     }
 
-    public function onPageInitialized() {
+    public function onPageInitialized(Event $e)
+    {
+        $page = $e['page'];
+
+        $this->mergePageOptions($page);
 
         $callback = $this->config->get('plugins.likes-ratings.callback');
         $route = $this->grav['uri']->path();
@@ -104,10 +108,18 @@ class LikesRatingsPlugin extends Plugin
     {
         $twig = $this->grav['twig'];
         $likes = $this->grav['likes'];
+        $config = $this->config->get('plugins.likes-ratings');
+
+        $defaults = [
+            'disable_after_vote' => $config['disable_after_vote'],
+            'readonly' => $config['readonly']
+        ];
+
+        $options = array_merge($defaults, $options);
 
         $results = $likes->get($id);
 
-        $callback = Uri::addNonce($this->grav['base_url'] . $this->config->get('plugins.likes-ratings.callback') . '.json','likes-ratings');
+        $callback = Uri::addNonce($this->grav['base_url'] . $config['callback'] . '.json','likes-ratings');
 
         $output = $twig->processTemplate('partials/likes-ratings.html.twig', [
             'id'        => $id,
@@ -135,7 +147,13 @@ class LikesRatingsPlugin extends Plugin
         } else {
             return [false, 'Missing id or type', -1];
         }
+    }
 
-
+    protected function mergePageOptions($page)
+    {
+        // if not in admin merge potential page-level configs
+        if (!$this->isAdmin() && isset($page->header()->{'likes-ratings'})) {
+            $this->config->set('plugins.likes-ratings', $this->mergeConfig($page));
+        }
     }
 }
