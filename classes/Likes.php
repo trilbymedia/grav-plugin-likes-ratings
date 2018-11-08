@@ -49,8 +49,14 @@ class Likes
         if (!in_array($col, ['ups', 'downs'])) {
             $message = "Invalid vote type: $col";
         } elseif ($this->processIP($id)) {
-            $statement = "INSERT INTO {$this->table_likes} (id, $col) VALUES ('$id', $amount) ON CONFLICT(id) DO UPDATE SET $col = $col + $amount";
+            // $statement = "INSERT INTO {$this->table_likes} (id, $col) VALUES ('$id', $amount) ON CONFLICT(id) DO UPDATE SET $col = $col + $amount";
+            // $this->db->insert($statement);
+            $statement = "INSERT OR IGNORE INTO {$this->table_likes} (id, $col) VALUES ('$id', 0)";
             $this->db->insert($statement);
+
+            $statement = "UPDATE {$this->table_likes} SET $col = $col + $amount WHERE id='$id'";
+            $this->db->update($statement);
+
             $status = true;
         } else {
             $message = "This IP has already voted";
@@ -76,7 +82,9 @@ class Likes
         if ($this->config->get('unique_ip_check')) {
             $user_ip = Grav::instance()['uri']->ip();
 
-            $statement = "INSERT INTO {$this->table_ips} (id, ip) VALUES ('$id', '$user_ip') ON CONFLICT DO NOTHING";
+            // $statement = "INSERT INTO {$this->table_ips} (id, ip) VALUES ('$id', '$user_ip') ON CONFLICT DO NOTHING";
+            // $results = $this->db->insert($statement);
+            $statement = "INSERT OR IGNORE INTO {$this->table_ips} (id, ip) VALUES ('$id', '$user_ip')";
             $results = $this->db->insert($statement);
 
             return $results == 1 ? true : false;
