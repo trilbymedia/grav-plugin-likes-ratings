@@ -49,15 +49,31 @@ class Likes
         if (!in_array($col, ['ups', 'downs'])) {
             $message = "Invalid vote type: $col";
         } elseif ($this->processIP($id)) {
-            // $statement = "INSERT INTO {$this->table_likes} (id, $col) VALUES ('$id', $amount) ON CONFLICT(id) DO UPDATE SET $col = $col + $amount";
-            // $this->db->insert($statement);
-            $statement = "INSERT OR IGNORE INTO {$this->table_likes} (id, $col) VALUES ('$id', 0)";
-            $this->db->insert($statement);
+            if (!$this->supportOnConflict()) {
+                $query = "UPDATE {$this->table_likes} SET {$col} = ${col} + :amount WHERE id = :id";
 
-            $statement = "UPDATE {$this->table_likes} SET $col = $col + $amount WHERE id='$id'";
-            $this->db->update($statement);
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':id', $id, PDO::PARAM_STR);
+                $statement->bindValue(':amount', $amount, PDO::PARAM_INT);
+                $statement->execute();
 
+                $query = "INSERT OR IGNORE INTO {$this->table_likes} (id, {$col}) VALUES (:id, :amount)";
+
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':id', $id, PDO::PARAM_STR);
+                $statement->bindValue(':amount', $amount, PDO::PARAM_INT);
+                $statement->execute();
+
+            } else {
+                $query = "INSERT INTO {$this->table_likes} (id, {$col}) VALUES (:id, :amount) ON CONFLICT(id) DO UPDATE SET {$col} = {$col} + :amount";
+
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':id', $id, PDO::PARAM_STR);
+                $statement->bindValue(':amount', $amount, PDO::PARAM_INT);
+                $statement->execute();
+            }
             $status = true;
+
         } else {
             $message = "This IP has already voted";
         }
@@ -68,8 +84,13 @@ class Likes
 
     public function get($id, $col = '*')
     {
-        $statement = "SELECT $col FROM {$this->table_likes} WHERE id = '$id'";
-        $results = $this->db->select($statement);
+        $query = "SELECT {$col} FROM {$this->table_likes} WHERE id = :id";
+
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':id', $id, PDO::PARAM_STR);
+        $statement->execute();
+
+        $results = $statement->fetch();
 
         if ($col == '*') {
             return $results;
@@ -82,12 +103,17 @@ class Likes
         if ($this->config->get('unique_ip_check')) {
             $user_ip = Grav::instance()['uri']->ip();
 
-            // $statement = "INSERT INTO {$this->table_ips} (id, ip) VALUES ('$id', '$user_ip') ON CONFLICT DO NOTHING";
-            // $results = $this->db->insert($statement);
-            $statement = "INSERT OR IGNORE INTO {$this->table_ips} (id, ip) VALUES ('$id', '$user_ip')";
-            $results = $this->db->insert($statement);
+            $query = "INSERT OR IGNORE INTO {$this->table_ips} (id, ip) VALUES (:id, :user_ip)";
+
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':id', $id, PDO::PARAM_STR);
+            $statement->bindValue(':user_ip', $user_ip, PDO::PARAM_STR);
+            $statement->execute();
+
+            $results = $statement->fetch();
 
             return $results == 1 ? true : false;
+
         }
         return true;
     }
@@ -103,6 +129,17 @@ class Likes
         foreach ($commands as $command) {
             $this->db->exec($command);
         }
+    }
+
+    protected function supportOnConflict()
+    {
+        static $bool;
+
+        if ($bool === null) {
+            $bool = version_compare($this->db->query('SELECT sqlite_version()')->fetch()[0], '3.24.0' , '>=');
+        }
+
+        return $bool;
     }
 
 
