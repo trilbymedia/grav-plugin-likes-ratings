@@ -1,6 +1,7 @@
 <?php
 namespace Grav\Plugin;
 
+use Composer\Autoload\ClassLoader;
 use Grav\Common\Plugin;
 use Grav\Common\Utils;
 use Grav\Common\Uri;
@@ -94,7 +95,8 @@ class LikesRatingsPlugin extends Plugin
         );
     }
 
-    public function onTwigSiteVariables() {
+    public function onTwigSiteVariables()
+    {
         if ($this->config->get('plugins.likes-ratings.built_in_css')) {
             $this->grav['assets']
                 ->addCss('plugin://likes-ratings/assets/likes-ratings.css');
@@ -132,7 +134,8 @@ class LikesRatingsPlugin extends Plugin
         return $output;
     }
 
-    protected function addVote() {
+    protected function addVote()
+    {
         $nonce = $this->grav['uri']->param('nonce');
         if (false && !Utils::verifyNonce($nonce, 'likes-ratings')) {
             return [false, 'Invalid security nonce'];
@@ -144,9 +147,9 @@ class LikesRatingsPlugin extends Plugin
 
         if ($id && $type) {
             return $this->grav['likes']->add($id);
-        } else {
-            return [false, 'Missing id or type', -1];
         }
+
+        return [false, 'Missing id or type', -1];
     }
 
     protected function mergePageOptions($page)
