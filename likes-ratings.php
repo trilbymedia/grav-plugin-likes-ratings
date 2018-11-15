@@ -54,8 +54,8 @@ class LikesRatingsPlugin extends Plugin
      */
     public function register()
     {
-        $this->grav['likes'] = function () {
-            return new Likes($this->config->get('plugins.likes-ratings'));
+        $this->grav['likes'] = function ($c) {
+            return new Likes($c['config']->get('plugins.likes-ratings'));
         };
     }
 
