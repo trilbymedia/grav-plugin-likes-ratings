@@ -27,8 +27,13 @@ class LikesRatingsPlugin extends Plugin
     public static function getSubscribedEvents()
     {
         return [
+            'onCliInitialize' => [
+                ['autoload', 100000],
+                ['register', 1000]
+            ],
             'onPluginsInitialized' => [
                 ['autoload', 100000],
+                ['register', 1000],
                 ['onPluginsInitialized', 1000]
             ]
         ];
@@ -45,13 +50,20 @@ class LikesRatingsPlugin extends Plugin
     }
 
     /**
+     * Register the service
+     */
+    public function register()
+    {
+        $this->grav['likes'] = function () {
+            return new Likes($this->config->get('plugins.likes-ratings'));
+        };
+    }
+
+    /**
      * Initialize the plugin
      */
     public function onPluginsInitialized()
     {
-        $likes = new Likes($this->config->get('plugins.likes-ratings'));
-        $this->grav['likes'] = $likes;
-
         if ($this->isAdmin()) {
             return;
         }
