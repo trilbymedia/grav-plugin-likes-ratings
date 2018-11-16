@@ -118,8 +118,20 @@ class LikesRatingsPlugin extends Plugin
             ->addJs('plugin://likes-ratings/assets/likes-ratings.js');
     }
 
-    public function generateLikes($id=null, $options = [])
+    /**
+     * @param mixed|null $id
+     * @param array $options
+     * @return string
+     */
+    public function generateLikes($id = null, $options = [])
     {
+        if (null === $id) {
+            return '';
+        }
+
+        // Convert objects to string
+        $id = (string)$id;
+
         $twig = $this->grav['twig'];
         $likes = $this->grav['likes'];
         $config = $this->config->get('plugins.likes-ratings');
