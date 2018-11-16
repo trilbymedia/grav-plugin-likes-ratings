@@ -139,6 +139,20 @@ class Likes
         return $results[$col] ?? 0;
     }
 
+    public function getAll($limit = 0, $order = 'ups', $by = 'ASC')
+    {
+        $by = strtoupper($by) === 'ASC' ? 'ASC' : 'DESC';
+        $offset = 0;
+
+        $query = "SELECT * FROM {$this->table_likes} ORDER BY ${order} {$by} LIMIT :limit OFFSET :offset";
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
+
     public function processIP($id)
     {
         if ($this->config->get('unique_ip_check')) {
