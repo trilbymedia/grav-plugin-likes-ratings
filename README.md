@@ -58,7 +58,7 @@ bin/plugin likes-ratings set foobar 10 --type downs
 bin/plugin likes-ratings set foobar +5
 ```
 
-### `foobar` will be set to 0 downs (ups: 55, downs: 0)
+#### `foobar` will be set to 0 downs (ups: 55, downs: 0)
 
 Because `-10` might be interpreted as an option by the CLI, it must be escaped with a `--` like shown below. 
 ```
