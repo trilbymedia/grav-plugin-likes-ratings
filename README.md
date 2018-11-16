@@ -48,7 +48,7 @@ Options you can pass are:
 bin/plugin likes-ratings set foobar 50
 ```
 
-#### `foobar` will be set to 50 downs (ups: 50, downs: 10)
+#### `foobar` will be set to 10 downs (ups: 50, downs: 10)
 ```
 bin/plugin likes-ratings set foobar 10 --type downs
 ```
