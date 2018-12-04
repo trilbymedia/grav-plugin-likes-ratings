@@ -15,7 +15,7 @@ class Likes
     protected $db;
 
     protected $config;
-    protected $path = 'user://data/likes-ratings';
+    protected $path = 'user-data://likes-ratings';
     protected $db_name = 'likes.db';
     protected $table_likes = 'likes';
     protected $table_ips = 'ips';
