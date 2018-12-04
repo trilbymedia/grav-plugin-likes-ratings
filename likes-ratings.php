@@ -103,7 +103,7 @@ class LikesRatingsPlugin extends Plugin
 
     public function onTwigInitialized() {
         $this->grav['twig']->twig()->addFunction(
-            new \Twig_SimpleFunction('likes', [$this, 'generateLikes'])
+            new \Twig_SimpleFunction('likes', [$this, 'generateLikes'], ['is_safe' => ['html']])
         );
     }
 
