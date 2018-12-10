@@ -177,10 +177,10 @@ class LikesRatingsPlugin extends Plugin
 
         // get and filter the data
         $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
-        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING) ?? 'ups';
+        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING) === 'downs' ? 'downs' : 'ups';
 
         if ($id && $type) {
-            return $this->grav['likes']->add($id);
+            return $this->grav['likes']->add($id, $type, 1);
         }
 
         return [false, 'Missing id or type', -1];
