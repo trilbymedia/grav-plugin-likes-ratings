@@ -2,12 +2,12 @@
 {% set likes_id = id|hyphenize %}
 <div class="likes-ratings-container" data-likes-id="{{ id }}" data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
   <div class="like like-up" data-likes-type="ups">
-    <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+    {% include('@likes-ratings/thumbs-up.svg') %}
     <span data-likes-status>{{ ups }}</span>
   </div>
 
   <div class="like like-down" data-likes-type="downs">
-    <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+    {% include('@likes-ratings/thumbs-down.svg') %}
     <span data-likes-status>{{ downs }}</span>
   </div>
 </div>

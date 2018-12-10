@@ -73,7 +73,17 @@ class LikesRatingsPlugin extends Plugin
             'onTwigInitialized'     => ['onTwigInitialized', 0],
             'onTwigTemplatePaths'   => ['onTwigTemplatePaths', 0],
             'onTwigSiteVariables'   => ['onTwigSiteVariables', 0],
+            'onTwigLoader'          => ['onTwigLoader', 0],
         ]);
+    }
+
+    // Add images to twig template paths to allow inclusion of SVG files
+    public function onTwigLoader()
+    {
+        $theme_paths = $this->grav['locator']->findResources('plugins://likes-ratings/assets');
+        foreach($theme_paths as $images_path) {
+            $this->grav['twig']->addPath($images_path, 'likes-ratings');
+        }
     }
 
     public function onPageInitialized(Event $e)
