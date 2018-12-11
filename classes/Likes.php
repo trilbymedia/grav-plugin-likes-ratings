@@ -3,6 +3,7 @@ namespace Grav\Plugin\LikesRatings;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Uri;
 use Grav\Common\Config\Config;
 use Grav\Plugin\Database\PDO;
 
@@ -180,6 +181,46 @@ class Likes
         }
 
         return true;
+    }
+
+    /**
+     * @param mixed|null $id
+     * @param array $options
+     * @return string
+     */
+    public function generateLikes($id = null, $options = [])
+    {
+        if (null === $id) {
+            return '';
+        }
+
+        // Convert objects to string
+        $id = (string)$id;
+
+        $twig = Grav::instance()['twig'];
+        $likes = Grav::instance()['likes'];
+        $config = Grav::instance()['config']->get('plugins.likes-ratings');
+
+        $defaults = [
+            'disable_after_vote' => $config['disable_after_vote'],
+            'readonly' => $config['readonly']
+        ];
+
+        $options = array_merge($defaults, $options);
+
+        $results = $likes->get($id);
+
+        $callback = Uri::addNonce(Grav::instance()['base_url'] . $config['callback'] . '.json','likes-ratings');
+
+        $output = $twig->processTemplate('partials/likes-ratings.html.twig', [
+            'id'        => $id,
+            'uri'       => $callback,
+            'ups'       => $results['ups'] ?? 0,
+            'downs'     => $results['downs'] ?? 0,
+            'options'   => $options
+        ]);
+
+        return $output;
     }
 
     public function createTables()

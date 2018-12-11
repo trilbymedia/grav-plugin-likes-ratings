@@ -4,7 +4,6 @@ namespace Grav\Plugin;
 use Composer\Autoload\ClassLoader;
 use Grav\Common\Plugin;
 use Grav\Common\Utils;
-use Grav\Common\Uri;
 use Grav\Plugin\LikesRatings\Likes;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -135,35 +134,7 @@ class LikesRatingsPlugin extends Plugin
      */
     public function generateLikes($id = null, $options = [])
     {
-        if (null === $id) {
-            return '';
-        }
-
-        // Convert objects to string
-        $id = (string)$id;
-
-        $twig = $this->grav['twig'];
-        $likes = $this->grav['likes'];
-        $config = $this->config->get('plugins.likes-ratings');
-
-        $defaults = [
-            'disable_after_vote' => $config['disable_after_vote'],
-            'readonly' => $config['readonly']
-        ];
-
-        $options = array_merge($defaults, $options);
-
-        $results = $likes->get($id);
-
-        $callback = Uri::addNonce($this->grav['base_url'] . $config['callback'] . '.json','likes-ratings');
-
-        $output = $twig->processTemplate('partials/likes-ratings.html.twig', [
-            'id'        => $id,
-            'uri'       => $callback,
-            'ups'       => $results['ups'] ?? 0,
-            'downs'     => $results['downs'] ?? 0,
-            'options'   => $options
-        ]);
+        $output = $this->grav['likes']->generateLikes($id, $options);
 
         return $output;
     }
