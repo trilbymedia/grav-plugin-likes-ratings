@@ -1,6 +1,7 @@
 .likes-ratings-container {
     margin: 1rem 0;
     white-space: nowrap;
+    display: flex;
 }
 .likes-ratings-container .like {
     display: inline-block;
@@ -9,18 +10,23 @@
     color: #fff;
     cursor: pointer;
 }
-.likes-ratings-container .like:active {
+
+.likes-ratings-container.readonly .like {
+    cursor: default;
+}
+
+.likes-ratings-container:not(.readonly) .like:active {
     transform: scale(1.25);
 }
 
 .likes-ratings-container .like span {
     vertical-align: middle;
-    opacity: 0.8;
 }
 
 .likes-ratings-container .like svg {
     width: 20px;
     vertical-align: middle;
+    opacity: 0.5;
 }
 
 .likes-ratings-container .like-up {
@@ -30,7 +36,7 @@
 
 .likes-ratings-container .like-down {
     background-color: #C03A2B;
-    margin-left: -3px;
+    margin-left: 1px;
     border-radius: 0 3px 3px 0;
 }
 

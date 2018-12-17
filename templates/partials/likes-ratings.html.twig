@@ -1,6 +1,6 @@
 {% set likes_data = { id: id, uri: uri, options: { readOnly: options.readonly|default(false), disableAfterRate: options.disable_after_vote|default(false) } } %}
 {% set likes_id = id|hyphenize %}
-<div class="likes-ratings-container" data-likes-id="{{ id }}" data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
+<div class="likes-ratings-container {{ options.readonly ? 'readonly' }}" data-likes-id="{{ id }}" data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
   <div class="like like-up" data-likes-type="ups">
     {% include('@likes-ratings/thumbs-up.svg') %}
     <span data-likes-status>{{ ups }}</span>
