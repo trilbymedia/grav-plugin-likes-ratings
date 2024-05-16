@@ -53,16 +53,14 @@ You can simply copy the existing Twig file into your own theme in the same locat
 ```twig
 {% set likes_data = { id: id, uri: uri} %}
 {% set likes_id = id|hyphenize %}
-<div class="likes-ratings-container {{ options.readonly ? 'readonly' }}" data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
-  <div class="likes-rating like-up" data-likes-type="ups">
-    {% include('@likes-ratings/thumbs-up.svg') %}
-    <span data-likes-status>{{ ups }}</span>
-  </div>
-
-  <div class="likes-rating like-down" data-likes-type="downs">
-    {% include('@likes-ratings/thumbs-down.svg') %}
-    <span data-likes-status>{{ downs }}</span>
-  </div>
+<div class="border rounded-lg border-gray-100 inline-flex text-white {{ options.readonly ? 'mouse-events-none' }}" {{ options.readonly ? 'data-likes-readonly' }}  data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
+  <button class="border-r border-gray-100 p-3 flex gap-2 justify-center items-center" data-likes-type="ups">
+    <span class="h-4 w-4">{% include('@likes-ratings/thumbs-up.svg') %}</span>
+    <span>{{ ups - downs }}</span>
+  </button>
+  <button class="p-3 flex flex-col gap-1 justify-center items-center" data-likes-type="downs">
+    <span class="h-4 w-4">{% include('@likes-ratings/thumbs-down.svg') %}</span>
+  </button>
   <div data-likes-error>{{ error }}</div>
 </div>
 ```
