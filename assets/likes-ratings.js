@@ -1,27 +1,34 @@
-((function($) {
-    $(document).ready(function() {
-        $(document).on('click', '[data-likes-ratings] [data-likes-type]', function(event) {
-            var target = $(event.currentTarget);
-            var container = target.closest('[data-likes-ratings]');
-            var data = container.data('likesRatings');
-            var type = target.data('likesType');
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-likes-ratings]').forEach(container => {
+      const data = JSON.parse(container.getAttribute('data-likes-ratings'));
+      const readOnly = data.options.readOnly;
+      const disableAfterRate = data.options.disableAfterRate;
 
-            if (data.options.readOnly || container.data('disableRatings')) { return true; }
+      container.querySelectorAll('.likes-rating').forEach(button => {
+        button.addEventListener('click', function() {
+          if (readOnly || container.getAttribute('data-likes-disable') === 'true') return;
 
-            $.ajax({
-                type: 'POST',
-                url: data.uri,
-                data: { id: data.id, type: type },
-                success: function (response) {
-                    if (response.status) {
-                        var query = '[data-likes-id="' + data.id + '"] [data-likes-type="' + type + '"] [data-likes-status], [data-likes-id="' + data.id + '"][data-likes-type="' + type + '"] [data-likes-status]';
-                        $(query).text(response.count);
-                        if (data.options.disableAfterRate) {
-                            container.data('disableRatings', true);
-                        }
-                    }
-                }
-            });
+          const type = button.getAttribute('data-likes-type');
+
+          fetch(data.uri, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: data.id, type: type }),
+          })
+          .then(response => response.json())
+          .then(response => {
+            if (response.status) {
+              const statusSpan = button.querySelector('[data-likes-status]');
+              statusSpan.textContent = response.count;
+              if (disableAfterRate) {
+                container.setAttribute('data-likes-disable', 'true');
+              }
+            }
+          })
+          .catch(error => console.error('Error:', error));
         });
+      });
     });
-})(jQuery));
+  });

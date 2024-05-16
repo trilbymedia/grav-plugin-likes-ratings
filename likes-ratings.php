@@ -33,8 +33,10 @@ class LikesRatingsPlugin extends Plugin
             'onPluginsInitialized' => [
                 ['autoload', 100000],
                 ['register', 1000],
-                ['onPluginsInitialized', 1000]
-            ]
+                ['onPluginsInitialized', 1000],
+
+            ],
+            'onShortcodeHandlers'       => ['onShortcodeHandlers', 0],
         ];
     }
 
@@ -74,6 +76,11 @@ class LikesRatingsPlugin extends Plugin
             'onTwigSiteVariables'   => ['onTwigSiteVariables', 0],
             'onTwigLoader'          => ['onTwigLoader', 0],
         ]);
+    }
+
+    public function onShortcodeHandlers()
+    {
+        $this->grav['shortcode']->registerAllShortcodes(__DIR__ . '/classes/shortcodes');
     }
 
     // Add images to twig template paths to allow inclusion of SVG files
@@ -146,12 +153,20 @@ class LikesRatingsPlugin extends Plugin
             return [false, 'Invalid security nonce'];
         }
 
-        // get and filter the data
-        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
-        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING) === 'downs' ? 'downs' : 'ups';
+        $rawData = file_get_contents('php://input');
 
-        if ($id && $type) {
-            return $this->grav['likes']->add($id, $type, 1);
+        // Decode the JSON data
+        $data = json_decode($rawData, true);
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $id = $data['id'] ?? null;
+            $type = $data['type'] ?? null;
+
+            if ($id && $type) {
+                return $this->grav['likes']->add($id, $type, 1);
+            }
+        } else {
+            return [false,  "Failed to decode JSON. Error: " . json_last_error_msg(), -1];
         }
 
         return [false, 'Missing id or type', -1];
