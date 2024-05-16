@@ -8,8 +8,7 @@ function init() {
 
         container.querySelectorAll('[data-likes-type]').forEach(button => {
             button.addEventListener('click', function () {
-                if (container.getAttribute('data-likes-disable') === 'true') return;
-
+                if (container.getAttribute('data-likes-readonly') === 'true') return;
                 const type = button.getAttribute('data-likes-type');
 
                 fetch(data.uri, {
