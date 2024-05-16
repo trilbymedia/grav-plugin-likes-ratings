@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const readOnly = data.options.readOnly;
       const disableAfterRate = data.options.disableAfterRate;
 
-      container.querySelectorAll('.likes-rating').forEach(button => {
+      container.querySelectorAll('[data-likes-type]').forEach(button => {
         button.addEventListener('click', function() {
           if (readOnly || container.getAttribute('data-likes-disable') === 'true') return;
 

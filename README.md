@@ -1,9 +1,74 @@
 # Likes Ratings Plugin
 
-Details coming soon...
+Likes Ratings is a flexible Grav plugin that displays an "Up" and a "Down" button that can be used for rating content or anything relaly.  It can be used either via Twig or via a shortcode, for maximum flexibility and also provides security options like 'disable after vote' and 'ip restrictions'. The display is fully overridable via a twig template, and you can even configure your own layout to mimic a single score rather than the default up and down totals.
 
+This plugin relies on the 'database' plugin to store scoring in a flat-file Sqlite database, but you can use the CLI to see all the scores or a particular scores by passing the 'id' of the item.  See below for more details.
 
-# CLI Commands
+### Configuration
+
+The configuration for the plugin is as follows (`user/plugins/likes-ratings/likes-ratings.yaml`):
+
+```yaml
+enabled: true
+built_in_css: true              # Use built-in CSS of the plugin.
+
+callback: '/likes-ratings'      # A path that the plugin will look for when processing Ajax calls
+unique_ip_check: false          # Ensures that a particular IP can only vote once
+disable_after_vote: true        # Disable the interaction after the user has already made the vote
+readonly: false                 # Set to readonly to disable all interaction
+```
+
+You can use the admin or copy the plugin's configuration file to `user/config/plugins/likes-ratings.yaml` and make changes there.
+
+## Usage
+
+### ID
+
+If no ID is provided, Grav will use the current **page route** as the ID (e.g. `/some-path/some-page`).  You can pass any string as an optional ID to either the Twig function or the Grav Shortcode.  e.g. `my-custom-id`.
+
+### Options
+
+There are several configuration options that are set at the plugin level, but you can pass in overrides if you want to change these for a particular rating instance.  The options are:
+
+```yaml
+[
+  unique_ip_check: false,
+  disable_after_vote: true,
+  readonly: false 
+]
+```
+
+### Twig
+
+To render the buttons and scores from Twig, you simply need to use the `{{ likes_ratings() }}` function. By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass any string as an optional ID, and an optional Options array. For example:
+
+```twig
+{{ likes_ratings('my-custom-id', [disable_after_vote: false) }}
+```
+
+This will store the rating under the ID: `my-custom-rating`.  You can then include this Twig code in multiple places and it will always reference the same `my-custom-rating` ID.
+
+Also because `disable_after_vote` was provided in the optional parameters array, this will be set to `false` in this instance.
+
+### Grav Shortcode
+
+To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes_ratings /]` shortcode.  By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass an optional ID, but the options array is not supported, and defaults are always used. For example:
+
+```markdown
+[likes_ratings id="my-custom-id" /]
+```
+
+## Modifying the Twig template 
+
+By default, the plugin will render using the included `templates/partials/likes-ratings.html.twig` file.  This will output a separate button for "Up" with a score for how many Ups the item has received.  It will also include a button for "Down" and a corresponding score for down.  There's also an included simple CSS file that renders these with a couple of SVG images for thumbs up and thumbs down.  You can easily disable the included CSS from the plugins configuration options, and provide your own styling. 
+
+You can simply copy the existing Twig file into your own theme in the same location (`templates/partials/likes-ratings.html.twig`) and make any modifications required.  For example if we wanted to make a layout that was similar to Reddit with an "Up" button with a total, and a "Down" button next to it (without any count) using Tailwind CSS you could do something like this:
+
+```twig
+
+```
+
+## CLI Commands
 
 ### List (ls)
 List the likes-ratings entries. 

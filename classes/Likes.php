@@ -191,7 +191,7 @@ class Likes
      */
     public function generateLikes($id = null, $options = [])
     {
-        $id = $id ?? Inflector::hyphenize(Grav::instance()['page']->route());
+        $id = $id ?? Grav::instance()['page']->route();
 
         if (null === $id) {
             return '';
@@ -205,6 +205,7 @@ class Likes
         $config = Grav::instance()['config']->get('plugins.likes-ratings');
 
         $defaults = [
+            'unique_ip_check' => $config['unique_ip_check'],
             'disable_after_vote' => $config['disable_after_vote'],
             'readonly' => $config['readonly']
         ];

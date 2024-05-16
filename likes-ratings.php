@@ -119,7 +119,7 @@ class LikesRatingsPlugin extends Plugin
 
     public function onTwigInitialized() {
         $this->grav['twig']->twig()->addFunction(
-            new \Twig_SimpleFunction('likes', [$this, 'generateLikes'], ['is_safe' => ['html']])
+            new \Twig_SimpleFunction('likes_ratings', [$this, 'generateLikes'], ['is_safe' => ['html']])
         );
     }
 
@@ -148,14 +148,11 @@ class LikesRatingsPlugin extends Plugin
 
     protected function addVote()
     {
-        $nonce = $this->grav['uri']->param('nonce');
-        if (false && !Utils::verifyNonce($nonce, 'likes-ratings')) {
+        if (!Utils::verifyNonce($this->grav['uri']->param('nonce'), 'likes-ratings')) {
             return [false, 'Invalid security nonce'];
         }
 
         $rawData = file_get_contents('php://input');
-
-        // Decode the JSON data
         $data = json_decode($rawData, true);
 
         if (json_last_error() === JSON_ERROR_NONE) {
