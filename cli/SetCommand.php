@@ -82,8 +82,8 @@ class SetCommand extends ConsoleCommand
         $likes = $grav['likes'];
 
         if (in_array(substr($count, 0, 1), ['+', '-'])) {
-            $total = $likes->add($id, $type, $count);
-            $count = $total[2];
+            $likes->add($id, $type, $count);
+            $count = $likes->get($id, $type);
         } else {
             $likes->set($id, $type, $count);
         }

@@ -47,12 +47,12 @@ class Likes
     public function add($id, $col = 'ups', $amount = 1)
     {
         $status = false;
-        $message = 'Thanks for your vote';
+        $error = null;
 
         if (!\in_array($col, ['ups', 'downs'])) {
-            $message = "Invalid vote type: $col";
+            $error = "Invalid vote type: $col";
         } elseif (!$this->processIP($id)) {
-            $message = 'This IP has already voted';
+            $error = 'This IP has already voted';
         } elseif (!$this->supportOnConflict()) {
             // Support SQLite < 3.24
             $query = "UPDATE {$this->table_likes} SET {$col} = {$col} + :amount WHERE id = :id";
@@ -84,8 +84,13 @@ class Likes
             $status = true;
         }
 
-        $count = $this->get($id, $col);
-        return [$status, $message, $count];
+        if (!defined('GRAV_CLI')) {
+            $payload = $this->generateLikes($id, $error, true);
+            return [$status, $error, $payload];
+        } else {
+            return [$status, $error];
+        }
+
     }
 
     public function set($id, $col = 'ups', $amount = 1)
@@ -189,7 +194,7 @@ class Likes
      * @param array $options
      * @return string
      */
-    public function generateLikes($id = null, $options = [])
+    public function generateLikes($id = null, $error = null, $disabled = false)
     {
         $id = $id ?? Grav::instance()['page']->route();
 
@@ -204,13 +209,9 @@ class Likes
         $likes = Grav::instance()['likes'];
         $config = Grav::instance()['config']->get('plugins.likes-ratings');
 
-        $defaults = [
-            'unique_ip_check' => $config['unique_ip_check'],
-            'disable_after_vote' => $config['disable_after_vote'],
-            'readonly' => $config['readonly']
+        $options = [
+            'readonly' => $config['readonly'] || ($config['disable_after_vote'] && $disabled)
         ];
-
-        $options = array_merge($defaults, $options);
 
         $results = $likes->get($id);
 
@@ -221,7 +222,8 @@ class Likes
             'uri'       => $callback,
             'ups'       => $results['ups'] ?? 0,
             'downs'     => $results['downs'] ?? 0,
-            'options'   => $options
+            'options'   => $options,
+            'error'     => $error
         ]);
 
         return $output;

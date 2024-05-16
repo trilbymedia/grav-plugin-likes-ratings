@@ -107,7 +107,7 @@ class LikesRatingsPlugin extends Plugin
             $result = $this->addVote();
 
             header('Content-Type: application/json');
-            echo json_encode(['status' => $result[0], 'message' => $result[1], 'count' => $result[2] ?? -1]);
+            echo json_encode(['status' => $result[0], 'error' => $result[1], 'content' => $result[2] ?? 'Error: missing content...']);
             exit();
         }
     }
@@ -130,7 +130,6 @@ class LikesRatingsPlugin extends Plugin
                 ->addCss('plugin://likes-ratings/assets/likes-ratings.css');
         }
         $this->grav['assets']
-            ->add('jquery', 101)
             ->addJs('plugin://likes-ratings/assets/likes-ratings.js');
     }
 
@@ -139,11 +138,9 @@ class LikesRatingsPlugin extends Plugin
      * @param array $options
      * @return string
      */
-    public function generateLikes($id = null, $options = [])
+    public function generateLikes($id = null)
     {
-        $output = $this->grav['likes']->generateLikes($id, $options);
-
-        return $output;
+        return $this->grav['likes']->generateLikes($id);
     }
 
     protected function addVote()

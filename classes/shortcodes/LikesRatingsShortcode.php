@@ -13,7 +13,7 @@ class LikesRatingsShortcode extends Shortcode
     $this->shortcode->getHandlers()->add('likes-ratings', function(ProcessedShortcode $sc) {
         $this->shortcode->addAssets('css', 'plugin://shortcode-ui/css/ui-browser.css');
         $id = $sc->getParameter('id', null);
-        return$this->grav['likes']->generateLikes($id, []);
+        return$this->grav['likes']->generateLikes($id);
     });
   }
 }

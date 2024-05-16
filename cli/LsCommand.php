@@ -90,16 +90,16 @@ class LsCommand extends ConsoleCommand
 
         $table = new Table($this->output);
         $table->setStyle('box');
-        $table->setHeaders(['ID', 'Ups 👍', 'Downs 👎']);
+        $table->setHeaders(['ID', 'Ups 👍', 'Downs 👎', 'Score 🎯', 'Total 🟰']);
         $rows = [];
 
         if ($id) {
             $entry = $likes->get($id);
-            $rows[] = [$id, $entry['ups'],$entry['downs']];
+            $rows[] = [$id, $entry['ups'],$entry['downs'], $entry['ups'] - $entry['downs'], $entry['ups'] + $entry['downs']];
         } else {
             $total = $likes->getAll($limit, $by, $sort);
             foreach ($total as $view) {
-                $rows[] = [$view['id'], $view['ups'], $view['downs']];
+                $rows[] = [$view['id'], $view['ups'], $view['downs'], $view['ups'] - $view['downs'], $view['ups'] + $view['downs']];
             }
         }
 

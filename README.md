@@ -26,33 +26,19 @@ You can use the admin or copy the plugin's configuration file to `user/config/pl
 
 If no ID is provided, Grav will use the current **page route** as the ID (e.g. `/some-path/some-page`).  You can pass any string as an optional ID to either the Twig function or the Grav Shortcode.  e.g. `my-custom-id`.
 
-### Options
-
-There are several configuration options that are set at the plugin level, but you can pass in overrides if you want to change these for a particular rating instance.  The options are:
-
-```yaml
-[
-  unique_ip_check: false,
-  disable_after_vote: true,
-  readonly: false 
-]
-```
-
 ### Twig
 
-To render the buttons and scores from Twig, you simply need to use the `{{ likes_ratings() }}` function. By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass any string as an optional ID, and an optional Options array. For example:
+To render the buttons and scores from Twig, you simply need to use the `{{ likes_ratings() }}` function. By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass any string as an optional ID. For example:
 
 ```twig
-{{ likes_ratings('my-custom-id', [disable_after_vote: false) }}
+{{ likes_ratings('my-custom-id') }}
 ```
 
 This will store the rating under the ID: `my-custom-rating`.  You can then include this Twig code in multiple places and it will always reference the same `my-custom-rating` ID.
 
-Also because `disable_after_vote` was provided in the optional parameters array, this will be set to `false` in this instance.
-
 ### Grav Shortcode
 
-To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes_ratings /]` shortcode.  By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass an optional ID, but the options array is not supported, and defaults are always used. For example:
+To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes_ratings /]` shortcode.  By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass an optional ID, for example:
 
 ```markdown
 [likes_ratings id="my-custom-id" /]
@@ -65,7 +51,20 @@ By default, the plugin will render using the included `templates/partials/likes-
 You can simply copy the existing Twig file into your own theme in the same location (`templates/partials/likes-ratings.html.twig`) and make any modifications required.  For example if we wanted to make a layout that was similar to Reddit with an "Up" button with a total, and a "Down" button next to it (without any count) using Tailwind CSS you could do something like this:
 
 ```twig
+{% set likes_data = { id: id, uri: uri} %}
+{% set likes_id = id|hyphenize %}
+<div class="likes-ratings-container {{ options.readonly ? 'readonly' }}" data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
+  <div class="likes-rating like-up" data-likes-type="ups">
+    {% include('@likes-ratings/thumbs-up.svg') %}
+    <span data-likes-status>{{ ups }}</span>
+  </div>
 
+  <div class="likes-rating like-down" data-likes-type="downs">
+    {% include('@likes-ratings/thumbs-down.svg') %}
+    <span data-likes-status>{{ downs }}</span>
+  </div>
+  <div data-likes-error>{{ error }}</div>
+</div>
 ```
 
 ## CLI Commands

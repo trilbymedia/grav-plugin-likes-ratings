@@ -11,11 +11,12 @@
     cursor: pointer;
 }
 
-.likes-ratings-container.readonly .likes-rating {
+[data-likes-readonly] .likes-rating {
     cursor: default;
+    pointer-events: none;
 }
 
-.likes-ratings-container:not(.readonly) .like:active {
+.likes-ratings-container:not([data-likes-readonly]) .like:active {
     transform: scale(1.25);
 }
 
@@ -38,6 +39,12 @@
     background-color: #C03A2B;
     margin-left: 1px;
     border-radius: 0 3px 3px 0;
+}
+
+[data-likes-error] {
+    color: #C03A2B;
+    font-size: 90%;
+    padding-top: 5px;
 }
 
 
