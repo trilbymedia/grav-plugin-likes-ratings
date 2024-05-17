@@ -94,10 +94,6 @@ class LikesRatingsPlugin extends Plugin
 
     public function onPageInitialized(Event $e)
     {
-        $page = $e['page'];
-
-        $this->mergePageOptions($page);
-
         $callback = $this->config->get('plugins.likes-ratings.callback');
         $route = $this->grav['uri']->path();
         // Process vote if appropriate
@@ -138,8 +134,15 @@ class LikesRatingsPlugin extends Plugin
      * @param array $options
      * @return string
      */
-    public function generateLikes($id = null)
+    public function generateLikes($id = null, $options = [])
     {
+        /** @var Likes $likes */
+        $likes = $this->grav['likes'];
+        $id = $likes->getId($id);
+
+        if (!empty($options)) {
+            $likes->saveOptions($id, $options);
+        }
         return $this->grav['likes']->generateLikes($id);
     }
 
@@ -157,7 +160,10 @@ class LikesRatingsPlugin extends Plugin
             $type = $data['type'] ?? null;
 
             if ($id && $type) {
-                return $this->grav['likes']->add($id, $type, 1);
+                /** @var Likes $likes */
+                $likes = $this->grav['likes'];
+                $likes->mergeSavedOptions($id);
+                return $likes->add($id, $type, 1);
             }
         } else {
             return [false,  "Failed to decode JSON. Error: " . json_last_error_msg(), -1];
@@ -166,11 +172,5 @@ class LikesRatingsPlugin extends Plugin
         return [false, 'Missing id or type', -1];
     }
 
-    protected function mergePageOptions($page)
-    {
-        // if not in admin merge potential page-level configs
-        if (!$this->isAdmin() && isset($page->header()->{'likes-ratings'})) {
-            $this->config->set('plugins.likes-ratings', $this->mergeConfig($page));
-        }
-    }
+
 }

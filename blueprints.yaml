@@ -48,8 +48,19 @@ form:
     unique_ip_check:
       type: toggle
       label: PLUGIN_LIKES_RATINGS.UNIQUE_IP_CHECK
-      highlight: 1
+      highlight: 0
       help: PLUGIN_LIKES_RATINGS.UNIQUE_IP_CHECK_HELP
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+
+    disable_after_vote:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.DISABLE_AFTER_VOTE
+      help: PLUGIN_LIKES_RATINGS.DISABLE_AFTER_VOTE_HELP
+      highlight: 1
       options:
         1: PLUGIN_ADMIN.YES
         0: PLUGIN_ADMIN.NO
@@ -67,13 +78,3 @@ form:
       validate:
         type: bool
 
-    disable_after_vote:
-      type: toggle
-      label: PLUGIN_LIKES_RATINGS.DISABLE_AFTER_VOTE
-      help: PLUGIN_LIKES_RATINGS.DISABLE_AFTER_VOTE_HELP
-      highlight: 1
-      options:
-        1: PLUGIN_ADMIN.YES
-        0: PLUGIN_ADMIN.NO
-      validate:
-        type: bool

@@ -1,11 +1,15 @@
 <?php
 namespace Grav\Plugin\LikesRatings;
 
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Uri;
 use Grav\Common\Config\Config;
+use Grav\Common\Utils;
+use Grav\Common\Yaml;
+use Grav\Framework\File\YamlFile;
 use Grav\Plugin\Database\PDO;
 
 class Likes
@@ -194,11 +198,9 @@ class Likes
      * @param array $options
      * @return string
      */
-    public function generateLikes($id = null, $error = null, $disabled = false)
+    public function generateLikes($id, $error = null, $disabled = false)
     {
-        $id = $id ?? Grav::instance()['page']->route();
-
-        if (null === $id) {
+       if (null === $id) {
             return '';
         }
 
@@ -207,17 +209,15 @@ class Likes
 
         $twig = Grav::instance()['twig'];
         $likes = Grav::instance()['likes'];
-        $config = Grav::instance()['config']->get('plugins.likes-ratings');
+        $options = $this->config->toArray();
 
-        $options = [
-            'readonly' => $config['readonly'] || ($config['disable_after_vote'] && $disabled)
-        ];
+        $options['readonly'] = $options['readonly'] || ($options['disable_after_vote'] && $disabled);
 
         $results = $likes->get($id);
 
-        $callback = Uri::addNonce(Grav::instance()['base_url'] . $config['callback'] . '.json','likes-ratings');
+        $callback = Uri::addNonce(Utils::url($options['callback']) . '.json','likes-ratings');
 
-        $output = $twig->processTemplate('partials/likes-ratings.html.twig', [
+        return $twig->processTemplate('partials/likes-ratings.html.twig', [
             'id'        => $id,
             'uri'       => $callback,
             'ups'       => $results['ups'] ?? 0,
@@ -225,8 +225,11 @@ class Likes
             'options'   => $options,
             'error'     => $error
         ]);
+    }
 
-        return $output;
+    public function getId($id = null): string
+    {
+        return $id ?? Grav::instance()['page']->route();
     }
 
     public function createTables()
@@ -240,6 +243,56 @@ class Likes
         foreach ($commands as $command) {
             $this->db->exec($command);
         }
+    }
+
+    public function saveOptions($id, $options): void
+    {
+        $options_file = static::getOptionsFile($id);
+        $options = array_map(function($value) {
+            if (is_string($value) || is_numeric($value)) {
+                switch (strtolower((string)$value)) {
+                    case "true":
+                    case "1":
+                    case "1.0":
+                        return true;
+                    case "false":
+                    case "0":
+                    case "0.0":
+                        return false;
+                }
+            }
+            return $value;
+        }, $options);
+        $options_file->save($options);
+        $this->mergeSavedOptions($id);
+    }
+    public function loadOptions($id): array
+    {
+        $options_file = $this->getOptionsFile($id);
+
+        if ($options_file->exists()) {
+            return $options_file->content();
+        }
+
+        return [];
+    }
+
+    public function mergeSavedOptions($id)
+    {
+        $saved_options = $this->loadOptions($id);
+        if (!empty($saved_options)) {
+            $this->config = new Config(array_merge($this->config->toArray(), $saved_options));
+        }
+    }
+
+    protected function getOptionsFile($id): CompiledYamlFile
+    {
+        $path = Grav::instance()['locator']->findResource('user-data://likes-ratings', true, true);
+        if (!file_exists($path)) {
+            Folder::create($path);
+        }
+        $options_path = $path  . '/' . md5($id) . '.yaml';
+        return CompiledYamlFile::instance($options_path);
     }
 
     protected function supportOnConflict()

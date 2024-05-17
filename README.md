@@ -28,7 +28,13 @@ If no ID is provided, Grav will use the current **page route** as the ID (e.g. `
 
 ### Twig
 
-To render the buttons and scores from Twig, you simply need to use the `{{ likes_ratings() }}` function. By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass any string as an optional ID. For example:
+To render the buttons and scores from Twig, you simply need to use the `{{ likes_ratings() }}` function. By default if no ID is provided, Grav will use the current 'page' route as the ID.  
+
+```twig
+{{ likes_ratings() }}
+```
+
+You can pass any string as an optional ID. For example:
 
 ```twig
 {{ likes_ratings('my-custom-id') }}
@@ -36,12 +42,31 @@ To render the buttons and scores from Twig, you simply need to use the `{{ likes
 
 This will store the rating under the ID: `my-custom-rating`.  You can then include this Twig code in multiple places and it will always reference the same `my-custom-rating` ID.
 
+You can also pass an optional options array such as `{readonly: false, disable_after_vote: false}`, for example:
+
+```twig
+{{ likes_ratings('my-custom-id', {readonly: false, disable_after_vote: false}) }}
+```
+
 ### Grav Shortcode
 
-To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes_ratings /]` shortcode.  By default if no ID is provided, Grav will use the current 'page' route as the ID.  You can pass an optional ID, for example:
+To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes-ratings /]` shortcode.  By default if no ID is provided, Grav will use the current 'page' route as the ID.  
 
 ```markdown
-[likes_ratings id="my-custom-id" /]
+[likes_ratings /]
+```
+
+
+You can pass an optional ID, for example:
+
+```markdown
+[likes-ratings id="my-custom-id" /]
+```
+
+You can also pass an optional options such as `readonly=false disable_after_vote=false`, for example:
+
+```twig
+[likes-ratings id="my-custom-id" readonly=false disable_after_vote=false /]
 ```
 
 ## Modifying the Twig template 
