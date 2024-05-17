@@ -217,7 +217,7 @@ class Likes
 
         $callback = Uri::addNonce(Utils::url($options['callback']) . '.json','likes-ratings');
 
-        return $twig->processTemplate('partials/likes-ratings.html.twig', [
+        return $twig->processTemplate($options['twig_template'], [
             'id'        => $id,
             'uri'       => $callback,
             'ups'       => $results['ups'] ?? 0,

@@ -10,12 +10,13 @@ The configuration for the plugin is as follows (`user/plugins/likes-ratings/like
 
 ```yaml
 enabled: true
-built_in_css: true              # Use built-in CSS of the plugin.
+built_in_css: true                                # Use built-in CSS of the plugin.
 
-callback: '/likes-ratings'      # A path that the plugin will look for when processing Ajax calls
-unique_ip_check: false          # Ensures that a particular IP can only vote once
-disable_after_vote: true        # Disable the interaction after the user has already made the vote
-readonly: false                 # Set to readonly to disable all interaction
+callback: '/likes-ratings'                        # A path that the plugin will look for when processing Ajax calls
+twig_template: 'partials/likes-ratings.html.twig' # The twig template to use for rendering the plugin
+unique_ip_check: false                            # Ensures that a particular IP can only vote once
+disable_after_vote: true                          # Disable the interaction after the user has already made the vote
+readonly: false                                   # Set to readonly to disable all interaction
 ```
 
 You can use the admin or copy the plugin's configuration file to `user/config/plugins/likes-ratings.yaml` and make changes there.
@@ -63,7 +64,7 @@ You can pass an optional ID, for example:
 [likes-ratings id="my-custom-id" /]
 ```
 
-You can also pass an optional options such as `readonly=false disable_after_vote=false`, for example:
+You can also pass an optional options such as `readonly=false disable_after_vote=false twig_template="partials/tailwind-ratings.html.twig"`, for example:
 
 ```twig
 [likes-ratings id="my-custom-id" readonly=false disable_after_vote=false /]
@@ -89,6 +90,8 @@ You can simply copy the existing Twig file into your own theme in the same locat
   <div data-likes-error>{{ error }}</div>
 </div>
 ```
+
+Alternatively, you can use a different unique twig template and simply change the `twig_template` option in the plugin configuration.  You can also do this at runtime by passing it via the Twig options array, or via the shortcode syntax.
 
 ## CLI Commands
 

@@ -45,6 +45,12 @@ form:
       label: PLUGIN_LIKES_RATINGS.CALLBACK_URL
       help: PLUGIN_LIKES_RATINGS.CALLBACK_URL_HELP
 
+    twig_template:
+      type: text
+      size: medium
+      label: PLUGIN_LIKES_RATINGS.TWIG_TEMPLATE
+      help: PLUGIN_LIKES_RATINGS.TWIG_TEMPLATE_HELP
+
     unique_ip_check:
       type: toggle
       label: PLUGIN_LIKES_RATINGS.UNIQUE_IP_CHECK

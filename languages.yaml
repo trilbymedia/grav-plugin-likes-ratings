@@ -9,3 +9,5 @@ en:
     READ_ONLY_HELP: Set to readonly to disable all interaction
     DISABLE_AFTER_VOTE: Disable After Vote
     DISABLE_AFTER_VOTE_HELP: Disable the interaction after the user has already made the vote
+    TWIG_TEMPLATE: Twig Template
+    TWIG_TEMPLATE_HELP: The twig template to use for rendering the plugin

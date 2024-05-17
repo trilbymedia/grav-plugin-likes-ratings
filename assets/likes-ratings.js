@@ -6,11 +6,14 @@ function init() {
     document.querySelectorAll('[data-likes-ratings]').forEach(container => {
         const data = JSON.parse(container.getAttribute('data-likes-ratings'));
 
+        if (container.hasAttribute('data-likes-readonly')) {
+           return;
+       }
+
         container.querySelectorAll('[data-likes-type]').forEach(button => {
             button.addEventListener('click', function () {
-                if (container.getAttribute('data-likes-readonly') === 'true') return;
-                const type = button.getAttribute('data-likes-type');
 
+                const type = button.getAttribute('data-likes-type');
                 fetch(data.uri, {
                     method: 'POST',
                     headers: {
