@@ -1,5 +1,5 @@
 name: Likes Ratings
-version: 0.1.0
+version: 1.0.0
 description: Simple Likes and Dislikes ratings plugin that uses a SQLite DB
 icon: plug
 author:
