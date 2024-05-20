@@ -1,8 +1,8 @@
 # Likes Ratings Plugin
 
-Likes Ratings is a flexible Grav plugin that displays an "Up" and a "Down" button that can be used for rating content or anything relaly.  It can be used either via Twig or via a shortcode, for maximum flexibility and also provides security options like 'disable after vote' and 'ip restrictions'. The display is fully overridable via a twig template, and you can even configure your own layout to mimic a single score rather than the default up and down totals.
+Likes Ratings is a flexible Grav plugin that displays an "Up" and a "Down" button that can be used for rating content or anything really.  It can be used either via **Twig** or via a **Grav Shortcode**, for maximum flexibility and also provides security options like 'disable after vote' and 'ip restrictions'. The display is fully overridable via a twig template, and you can configure your own layout to mimic any visual UI you could require.  For example, you can mimic Reddit and show a single score rather than the default up and down totals.
 
-This plugin relies on the 'database' plugin to store scoring in a flat-file Sqlite database, but you can use the CLI to see all the scores or a particular scores by passing the 'id' of the item.  See below for more details.
+This plugin requires the `database` plugin to store scoring in a flat-file Sqlite database. You can use the CLI to see all the scores or a particular scores by passing the 'id' of the item, as well as modifying the scores if required.  
 
 ### Configuration
 
@@ -10,12 +10,12 @@ The configuration for the plugin is as follows (`user/plugins/likes-ratings/like
 
 ```yaml
 enabled: true
-built_in_css: true                                # Use built-in CSS of the plugin.
+built_in_css: true                                # Use the built-in CSS of the plugin.
 
 callback: '/likes-ratings'                        # A path that the plugin will look for when processing Ajax calls
 twig_template: 'partials/likes-ratings.html.twig' # The twig template to use for rendering the plugin
 unique_ip_check: false                            # Ensures that a particular IP can only vote once
-disable_after_vote: true                          # Disable the interaction after the user has already made the vote
+disable_after_vote: true                          # Disable the interaction after the user has voted
 readonly: false                                   # Set to readonly to disable all interaction
 ```
 
@@ -49,27 +49,6 @@ You can also pass an optional options array such as `{readonly: false, disable_a
 {{ likes_ratings('my-custom-id', {readonly: false, disable_after_vote: false}) }}
 ```
 
-### Grav Shortcode
-
-To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes-ratings /]` shortcode.  By default if no ID is provided, Grav will use the current 'page' route as the ID.  
-
-```markdown
-[likes_ratings /]
-```
-
-
-You can pass an optional ID, for example:
-
-```markdown
-[likes-ratings id="my-custom-id" /]
-```
-
-You can also pass an optional options such as `readonly=false disable_after_vote=false twig_template="partials/tailwind-ratings.html.twig"`, for example:
-
-```twig
-[likes-ratings id="my-custom-id" readonly=false disable_after_vote=false /]
-```
-
 ## Modifying the Twig template 
 
 By default, the plugin will render using the included `templates/partials/likes-ratings.html.twig` file.  This will output a separate button for "Up" with a score for how many Ups the item has received.  It will also include a button for "Down" and a corresponding score for down.  There's also an included simple CSS file that renders these with a couple of SVG images for thumbs up and thumbs down.  You can easily disable the included CSS from the plugins configuration options, and provide your own styling. 
@@ -92,6 +71,35 @@ You can simply copy the existing Twig file into your own theme in the same locat
 ```
 
 Alternatively, you can use a different unique twig template and simply change the `twig_template` option in the plugin configuration.  You can also do this at runtime by passing it via the Twig options array, or via the shortcode syntax.
+
+```twig
+{{ likes_ratings('my-custom-id', {twig_template: '/partials/my-custom-likes.html.twig'}) }}
+```
+
+### Grav Shortcode
+
+> NOTE: To use the Grav Shortcode, you must first install [shortcode-core](https://github.com/getgrav/grav-plugin-shortcode-core) plugin to provide the base Shortcode functionality. This is not installed by default, because Likes Ratings can be used with Twig without the need of Shortcodes.
+
+To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes-ratings /]` shortcode.  By default, if no ID is provided, Grav will use the current 'page' route as the ID.  
+
+```markdown
+[likes_ratings /]
+```
+
+
+You can pass an optional ID, for example:
+
+```markdown
+[likes-ratings id="my-custom-id" /]
+```
+
+You can also pass an optional options such as `readonly=false disable_after_vote=false twig_template="partials/tailwind-ratings.html.twig"`, for example:
+
+```twig
+[likes-ratings id="my-custom-id" readonly=false disable_after_vote=false /]
+```
+
+
 
 ## CLI Commands
 
