@@ -1,9 +1,9 @@
 <?php
 namespace Grav\Plugin;
 
+use Composer\Autoload\ClassLoader;
 use Grav\Common\Plugin;
 use Grav\Common\Utils;
-use Grav\Common\Uri;
 use Grav\Plugin\LikesRatings\Likes;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -16,20 +16,21 @@ class LikesRatingsPlugin extends Plugin
     /**
      * @return array
      *
-     * The getSubscribedEvents() gives the core a list of events
-     *     that the plugin wants to listen to. The key of each
-     *     array section is the event that the plugin listens to
-     *     and the value (in the form of an array) contains the
-     *     callable (or function) as well as the priority. The
-     *     higher the number the higher the priority.
      */
     public static function getSubscribedEvents()
     {
         return [
+            'onCliInitialize' => [
+                ['autoload', 100000],
+                ['register', 1000]
+            ],
             'onPluginsInitialized' => [
                 ['autoload', 100000],
-                ['onPluginsInitialized', 1000]
-            ]
+                ['register', 1000],
+                ['onPluginsInitialized', 1000],
+
+            ],
+            'onShortcodeHandlers'       => ['onShortcodeHandlers', 0],
         ];
     }
 
@@ -44,24 +45,49 @@ class LikesRatingsPlugin extends Plugin
     }
 
     /**
+     * Register the service
+     */
+    public function register()
+    {
+        $this->grav['likes'] = function ($c) {
+            return new Likes($c['config']->get('plugins.likes-ratings'));
+        };
+    }
+
+    /**
      * Initialize the plugin
      */
     public function onPluginsInitialized()
     {
-        $likes = new Likes($this->config->get('plugins.likes-ratings'));
-        
-        $this->grav['likes'] = $likes;
+        if ($this->isAdmin()) {
+            return;
+        }
 
         $this->enable([
             'onPageInitialized'     => ['onPageInitialized', 0],
             'onTwigInitialized'     => ['onTwigInitialized', 0],
             'onTwigTemplatePaths'   => ['onTwigTemplatePaths', 0],
             'onTwigSiteVariables'   => ['onTwigSiteVariables', 0],
+            'onTwigLoader'          => ['onTwigLoader', 0],
         ]);
     }
 
-    public function onPageInitialized() {
+    public function onShortcodeHandlers()
+    {
+        $this->grav['shortcode']->registerAllShortcodes(__DIR__ . '/classes/shortcodes');
+    }
 
+    // Add images to twig template paths to allow inclusion of SVG files
+    public function onTwigLoader()
+    {
+        $theme_paths = $this->grav['locator']->findResources('plugins://likes-ratings/assets');
+        foreach($theme_paths as $images_path) {
+            $this->grav['twig']->addPath($images_path, 'likes-ratings');
+        }
+    }
+
+    public function onPageInitialized(Event $e)
+    {
         $callback = $this->config->get('plugins.likes-ratings.callback');
         $route = $this->grav['uri']->path();
         // Process vote if appropriate
@@ -70,7 +96,8 @@ class LikesRatingsPlugin extends Plugin
             // try to add the vote
             $result = $this->addVote();
 
-            echo json_encode(['status' => $result[0], 'message' => $result[1], 'count' => $result[2] ?? -1]);
+            header('Content-Type: application/json');
+            echo json_encode(['status' => $result[0], 'error' => $result[1], 'content' => $result[2] ?? 'Error: missing content...']);
             exit();
         }
     }
@@ -81,59 +108,63 @@ class LikesRatingsPlugin extends Plugin
     }
 
     public function onTwigInitialized() {
-        $twig = $this->grav['twig'];
-        $twig->twig()->addFunction(
-            new \Twig_SimpleFunction('likes', [$this, 'generateLikes'])
+        $this->grav['twig']->twig()->addFunction(
+            new \Twig_SimpleFunction('likes_ratings', [$this, 'generateLikes'], ['is_safe' => ['html']])
         );
     }
 
-    public function onTwigSiteVariables() {
+    public function onTwigSiteVariables()
+    {
         if ($this->config->get('plugins.likes-ratings.built_in_css')) {
             $this->grav['assets']
                 ->addCss('plugin://likes-ratings/assets/likes-ratings.css');
         }
         $this->grav['assets']
-            ->add('jquery', 101)
-            ->addJs('plugin://likes-ratings/assets/jquery.likes-ratings.js')
             ->addJs('plugin://likes-ratings/assets/likes-ratings.js');
     }
 
-    public function generateLikes($id=null, $options = [])
+    /**
+     * @param mixed|null $id
+     * @param array $options
+     * @return string
+     */
+    public function generateLikes($id = null, $options = [])
     {
-        $twig = $this->grav['twig'];
+        /** @var Likes $likes */
         $likes = $this->grav['likes'];
+        $id = $likes->getId($id);
 
-        $results = $likes->get($id);
-
-        $callback = Uri::addNonce($this->grav['base_url'] . $this->config->get('plugins.likes-ratings.callback') . '.json','likes-ratings');
-
-        $output = $twig->processTemplate('partials/likes-ratings.html.twig', [
-            'id'        => $id,
-            'uri'       => $callback,
-            'ups'       => $results['ups'] ?? 0,
-            'downs'     => $results['downs'] ?? 0,
-            'options'   => $options
-        ]);
-
-        return $output;
+        if (!empty($options)) {
+            $likes->saveOptions($id, $options);
+        }
+        return $this->grav['likes']->generateLikes($id);
     }
 
-    protected function addVote() {
-        $nonce = $this->grav['uri']->param('nonce');
-        if (false && !Utils::verifyNonce($nonce, 'likes-ratings')) {
+    protected function addVote()
+    {
+        if (!Utils::verifyNonce($this->grav['uri']->param('nonce'), 'likes-ratings')) {
             return [false, 'Invalid security nonce'];
         }
 
-        // get and filter the data
-        $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
-        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING) ?? 'ups';
+        $rawData = file_get_contents('php://input');
+        $data = json_decode($rawData, true);
 
-        if ($id && $type) {
-            return $this->grav['likes']->add($id);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $id = $data['id'] ?? null;
+            $type = $data['type'] ?? null;
+
+            if ($id && $type) {
+                /** @var Likes $likes */
+                $likes = $this->grav['likes'];
+                $likes->mergeSavedOptions($id);
+                return $likes->add($id, $type, 1);
+            }
         } else {
-            return [false, 'Missing id or type', -1];
+            return [false,  "Failed to decode JSON. Error: " . json_last_error_msg(), -1];
         }
 
-
+        return [false, 'Missing id or type', -1];
     }
+
+
 }

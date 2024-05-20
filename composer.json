@@ -3,5 +3,14 @@
     "psr-4": {
       "Grav\\Plugin\\LikesRatings\\": "classes/"
     }
+  },
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4"
+    }
   }
 }
