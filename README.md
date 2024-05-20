@@ -2,6 +2,8 @@
 
 Likes Ratings is a flexible Grav plugin that displays an "Up" and a "Down" button that can be used for rating content or anything really.  It can be used either via **Twig** or via a **Grav Shortcode**, for maximum flexibility and also provides security options like 'disable after vote' and 'ip restrictions'. The display is fully overridable via a twig template, and you can configure your own layout to mimic any visual UI you could require.  For example, you can mimic Reddit and show a single score rather than the default up and down totals.
 
+![default-view.png](assets/default-view.png)
+
 This plugin requires the `database` plugin to store scoring in a flat-file Sqlite database. You can use the CLI to see all the scores or a particular scores by passing the 'id' of the item, as well as modifying the scores if required.  
 
 ### Configuration
@@ -55,11 +57,13 @@ By default, the plugin will render using the included `templates/partials/likes-
 
 You can simply copy the existing Twig file into your own theme in the same location (`templates/partials/likes-ratings.html.twig`) and make any modifications required.  For example if we wanted to make a layout that was similar to Reddit with an "Up" button with a total, and a "Down" button next to it (without any count) using Tailwind CSS you could do something like this:
 
+![default-view.png](assets/tailwind-view.png)
+
 ```twig
 {% set likes_data = { id: id, uri: uri} %}
 {% set likes_id = id|hyphenize %}
-<div class="border rounded-lg border-gray-100 inline-flex text-white {{ options.readonly ? 'mouse-events-none' }}" {{ options.readonly ? 'data-likes-readonly' }}  data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
-  <button class="border-r border-gray-100 p-3 flex gap-2 justify-center items-center" data-likes-type="ups">
+<div class="border rounded-lg border-gray-400 dark:border-gray-100 inline-flex text-gray-800 dark:text-white [&_button_svg_path]:fill-current {{ options.readonly ? 'mouse-events-none [&>button]:cursor-auto' }}" {{ options.readonly ? 'data-likes-readonly' }}  data-likes-ratings="{{ likes_data|json_encode|e('html_attr') }}">
+  <button class="border-r border-gray-400 dark:border-gray-100 p-3 flex gap-2 justify-center items-center" data-likes-type="ups">
     <span class="h-4 w-4">{% include('@likes-ratings/thumbs-up.svg') %}</span>
     <span>{{ ups - downs }}</span>
   </button>
