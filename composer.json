@@ -5,12 +5,12 @@
     }
   },
   "require": {
-    "php": ">=7.1.3",
+    "php": ">=7.4",
     "ext-json": "*"
   },
   "config": {
     "platform": {
-      "php": "7.1.3"
+      "php": "7.4"
     }
   }
 }

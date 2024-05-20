@@ -6,7 +6,6 @@ author:
   name: Trilby Media
   email: hello@trilby.media
 homepage: https://github.com/trilbymedia/grav-plugin-likes-ratings
-demo: http://demo.yoursite.com
 keywords: grav, plugin, etc
 bugs: https://github.com/trilbymedia/grav-plugin-likes-ratings/issues
 docs: https://github.com/trilbymedia/grav-plugin-likes-ratings/blob/develop/README.md
