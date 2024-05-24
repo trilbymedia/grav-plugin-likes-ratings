@@ -4,12 +4,9 @@ namespace Grav\Plugin\LikesRatings;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
-use Grav\Common\Inflector;
 use Grav\Common\Uri;
 use Grav\Common\Config\Config;
 use Grav\Common\Utils;
-use Grav\Common\Yaml;
-use Grav\Framework\File\YamlFile;
 use Grav\Plugin\Database\PDO;
 
 class Likes
