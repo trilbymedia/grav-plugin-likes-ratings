@@ -1,9 +1,6 @@
 <?php
 namespace Grav\Plugin\Shortcodes;
 
-use Grav\Common\Inflector;
-use Grav\Plugin\PageToc\UniqueSlugify;
-use Grav\Plugin\PageTOCPlugin;
 use Thunder\Shortcode\Shortcode\ProcessedShortcode;
 
 class LikesRatingsShortcode extends Shortcode
