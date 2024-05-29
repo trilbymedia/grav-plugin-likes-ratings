@@ -134,6 +134,10 @@ class LikesRatingsPlugin extends Plugin
         $likes = $this->grav['likes'];
         $id = $likes->getId($id);
 
+        if (null === $id) {
+            return '';
+        }
+
         if (!empty($options)) {
             $likes->saveOptions($id, $options);
         }
