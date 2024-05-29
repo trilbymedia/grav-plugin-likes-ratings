@@ -87,7 +87,7 @@ Alternatively, you can use a different unique twig template and simply change th
 To render the buttons and scores from your content using a Grav Shortcode, you can use the `[likes-ratings /]` shortcode.  By default, if no ID is provided, Grav will use the current 'page' route as the ID.  
 
 ```markdown
-[likes_ratings /]
+[likes-ratings /]
 ```
 
 
