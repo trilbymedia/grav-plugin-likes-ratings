@@ -224,7 +224,7 @@ class Likes
         ]);
     }
 
-    public function getId($id = null): string
+    public function getId($id = null): ?string
     {
         return $id ?? Grav::instance()['page']->route();
     }

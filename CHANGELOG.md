@@ -1,3 +1,9 @@
+# v1.0.3
+## 05/29/2024
+
+1. [](#bugfix)
+   * Compatibility fix for SimpleSearch [#1](https://github.com/trilbymedia/grav-plugin-likes-ratings/issues/1)
+
 # v1.0.2
 ## 05/24/2024
 
