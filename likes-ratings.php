@@ -6,6 +6,7 @@ use Grav\Common\Plugin;
 use Grav\Common\Utils;
 use Grav\Plugin\LikesRatings\Likes;
 use RocketTheme\Toolbox\Event\Event;
+use Twig\TwigFunction;
 
 /**
  * Class LikesRatingsPlugin
@@ -109,7 +110,7 @@ class LikesRatingsPlugin extends Plugin
 
     public function onTwigInitialized() {
         $this->grav['twig']->twig()->addFunction(
-            new \Twig_SimpleFunction('likes_ratings', [$this, 'generateLikes'], ['is_safe' => ['html']])
+            new TwigFunction('likes_ratings', [$this, 'generateLikes'], ['is_safe' => ['html']])
         );
     }
 
