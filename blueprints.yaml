@@ -1,5 +1,5 @@
 name: Likes Ratings
-version: 1.0.3
+version: 1.1.0
 description: Simple Likes and Dislikes ratings plugin that uses a SQLite DB
 icon:  thumbs-up
 author:
@@ -10,6 +10,9 @@ keywords: grav, plugin, etc
 bugs: https://github.com/trilbymedia/grav-plugin-likes-ratings/issues
 docs: https://github.com/trilbymedia/grav-plugin-likes-ratings/blob/develop/README.md
 license: MIT
+
+compatibility:
+  grav: ['1.7', '2.0']
 
 dependencies:
 - { name: database, version: '>=0.1.0' }
