@@ -11,3 +11,11 @@ en:
     DISABLE_AFTER_VOTE_HELP: Disable the interaction after the user has already made the vote
     TWIG_TEMPLATE: Twig Template
     TWIG_TEMPLATE_HELP: The twig template to use for rendering the plugin
+    RATE_LIMIT_ENABLED: Rate Limit Votes
+    RATE_LIMIT_ENABLED_HELP: Reject vote submissions from an IP once it exceeds the configured per-minute limit
+    RATE_LIMIT_PER_MINUTE: Votes Per Minute
+    RATE_LIMIT_PER_MINUTE_HELP: Maximum vote submissions allowed from a single IP within a 60-second window
+    AUTO_CLEANUP_ENABLED: Auto-Cleanup Invalid Ids
+    AUTO_CLEANUP_ENABLED_HELP: Periodically remove rows with invalid (non-route-like) ids from the database
+    AUTO_CLEANUP_INTERVAL_HOURS: Cleanup Interval (hours)
+    AUTO_CLEANUP_INTERVAL_HOURS_HELP: Minimum hours between auto-cleanup sweeps

@@ -13,6 +13,7 @@ class Likes
 {
     const UP = 'ups';
     const DOWN = 'downs';
+    const ID_REGEX = '#^/?[a-zA-Z0-9][a-zA-Z0-9/._-]{0,254}$#';
 
     /** @var PDO */
     protected $db;
@@ -22,6 +23,8 @@ class Likes
     protected $db_name = 'likes.db';
     protected $table_likes = 'likes';
     protected $table_ips = 'ips';
+    protected $table_rate_limits = 'rate_limits';
+    protected $table_meta = 'meta';
 
     public function __construct($config)
     {
@@ -39,10 +42,7 @@ class Likes
         $this->db = Grav::instance()['database']->connect($connect_string);
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        if (!$this->db->tableExists($this->table_likes)) {
-            $this->createTables();
-        }
-
+        $this->createTables();
     }
 
     public function add($id, $col = 'ups', $amount = 1)
@@ -50,8 +50,8 @@ class Likes
         $status = false;
         $error = null;
 
-        if (!\in_array($col, ['ups', 'downs'])) {
-            $error = "Invalid vote type: $col";
+        if (!\in_array($col, ['ups', 'downs'], true)) {
+            $error = 'Invalid vote type';
         } elseif (!$this->processIP($id)) {
             $error = 'This IP has already voted';
         } elseif (!$this->supportOnConflict()) {
@@ -149,6 +149,7 @@ class Likes
 
     public function getAll($limit = 0, $order = 'ups', $by = 'ASC')
     {
+        $order = in_array($order, ['ups', 'downs', 'id'], true) ? $order : 'ups';
         $by = strtoupper($by) === 'ASC' ? 'ASC' : 'DESC';
         $offset = 0;
 
@@ -233,13 +234,134 @@ class Likes
     {
         $commands = [
             "CREATE TABLE IF NOT EXISTS {$this->table_likes}  (id VARCHAR(255) PRIMARY KEY, ups INTEGER DEFAULT 0, downs INTEGER DEFAULT 0)",
-            "CREATE TABLE IF NOT EXISTS {$this->table_ips} (id VARCHAR(255), ip varchar(100), PRIMARY KEY (id, ip))"
+            "CREATE TABLE IF NOT EXISTS {$this->table_ips} (id VARCHAR(255), ip varchar(100), PRIMARY KEY (id, ip))",
+            "CREATE TABLE IF NOT EXISTS {$this->table_rate_limits} (ip VARCHAR(100), ts INTEGER)",
+            "CREATE INDEX IF NOT EXISTS {$this->table_rate_limits}_ip_ts_idx ON {$this->table_rate_limits} (ip, ts)",
+            "CREATE TABLE IF NOT EXISTS {$this->table_meta} (name VARCHAR(64) PRIMARY KEY, value TEXT)",
         ];
 
         // execute the sql commands to create new tables
         foreach ($commands as $command) {
             $this->db->exec($command);
         }
+    }
+
+    /**
+     * Allowlist check for vote ids: route-like strings, 1-255 chars.
+     */
+    public static function isValidId($id): bool
+    {
+        return is_string($id) && (bool) preg_match(self::ID_REGEX, $id);
+    }
+
+    /**
+     * Sweeps rows with invalid ids from the likes/ips tables, but only once per configured
+     * interval. Safe to call on every vote — early-exits if it ran recently.
+     *
+     * @return int Number of likes rows removed (0 if no sweep ran).
+     */
+    public function maybeCleanup(): int
+    {
+        if (!$this->config->get('auto_cleanup_enabled', true)) {
+            return 0;
+        }
+
+        $hours = max(1, (int) $this->config->get('auto_cleanup_interval_hours', 24));
+        $now = time();
+        $last = (int) $this->getMeta('last_cleanup_ts');
+
+        if ($last && ($now - $last) < $hours * 3600) {
+            return 0;
+        }
+
+        $invalid = [];
+        $stmt = $this->db->query("SELECT id FROM {$this->table_likes}");
+        foreach ($stmt as $row) {
+            $id = $row['id'] ?? ($row[0] ?? null);
+            if ($id !== null && !static::isValidId($id)) {
+                $invalid[] = $id;
+            }
+        }
+
+        $deleted = 0;
+        if ($invalid) {
+            $delLikes = $this->db->prepare("DELETE FROM {$this->table_likes} WHERE id = :id");
+            $delIps = $this->db->prepare("DELETE FROM {$this->table_ips} WHERE id = :id");
+            foreach ($invalid as $id) {
+                $delLikes->bindValue(':id', $id, PDO::PARAM_STR);
+                $delLikes->execute();
+                $deleted += $delLikes->rowCount();
+                $delIps->bindValue(':id', $id, PDO::PARAM_STR);
+                $delIps->execute();
+            }
+        }
+
+        $this->setMeta('last_cleanup_ts', (string) $now);
+
+        return $deleted;
+    }
+
+    protected function getMeta(string $name): ?string
+    {
+        $stmt = $this->db->prepare("SELECT value FROM {$this->table_meta} WHERE name = :name");
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->execute();
+        $value = $stmt->fetchColumn();
+        return $value === false ? null : (string) $value;
+    }
+
+    protected function setMeta(string $name, string $value): void
+    {
+        $stmt = $this->db->prepare("UPDATE {$this->table_meta} SET value = :value WHERE name = :name");
+        $stmt->bindValue(':value', $value, PDO::PARAM_STR);
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->execute();
+        if ($stmt->rowCount() === 0) {
+            $stmt = $this->db->prepare("INSERT INTO {$this->table_meta} (name, value) VALUES (:name, :value)");
+            $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+            $stmt->bindValue(':value', $value, PDO::PARAM_STR);
+            $stmt->execute();
+        }
+    }
+
+    /**
+     * Returns true if the IP is under the per-minute vote limit, false if it should be blocked.
+     * Records the vote attempt as a side effect when allowed.
+     */
+    public function checkRateLimit(string $ip): bool
+    {
+        if (!$this->config->get('rate_limit_enabled', true)) {
+            return true;
+        }
+
+        $limit = (int) $this->config->get('rate_limit_per_minute', 10);
+        if ($limit <= 0) {
+            return true;
+        }
+
+        $now = time();
+        $cutoff = $now - 60;
+
+        $statement = $this->db->prepare("DELETE FROM {$this->table_rate_limits} WHERE ts < :cutoff");
+        $statement->bindValue(':cutoff', $cutoff, PDO::PARAM_INT);
+        $statement->execute();
+
+        $statement = $this->db->prepare("SELECT COUNT(*) FROM {$this->table_rate_limits} WHERE ip = :ip AND ts >= :cutoff");
+        $statement->bindValue(':ip', $ip, PDO::PARAM_STR);
+        $statement->bindValue(':cutoff', $cutoff, PDO::PARAM_INT);
+        $statement->execute();
+        $count = (int) $statement->fetchColumn();
+
+        if ($count >= $limit) {
+            return false;
+        }
+
+        $statement = $this->db->prepare("INSERT INTO {$this->table_rate_limits} (ip, ts) VALUES (:ip, :ts)");
+        $statement->bindValue(':ip', $ip, PDO::PARAM_STR);
+        $statement->bindValue(':ts', $now, PDO::PARAM_INT);
+        $statement->execute();
+
+        return true;
     }
 
     public function saveOptions($id, $options): void
