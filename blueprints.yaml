@@ -1,5 +1,5 @@
 name: Likes Ratings
-version: 1.1.0
+version: 1.2.0
 description: Simple Likes and Dislikes ratings plugin that uses a SQLite DB
 icon:  thumbs-up
 author:
@@ -85,4 +85,46 @@ form:
         0: PLUGIN_ADMIN.NO
       validate:
         type: bool
+
+    rate_limit_enabled:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.RATE_LIMIT_ENABLED
+      help: PLUGIN_LIKES_RATINGS.RATE_LIMIT_ENABLED_HELP
+      highlight: 1
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+
+    rate_limit_per_minute:
+      type: number
+      size: x-small
+      label: PLUGIN_LIKES_RATINGS.RATE_LIMIT_PER_MINUTE
+      help: PLUGIN_LIKES_RATINGS.RATE_LIMIT_PER_MINUTE_HELP
+      default: 10
+      validate:
+        type: int
+        min: 1
+
+    auto_cleanup_enabled:
+      type: toggle
+      label: PLUGIN_LIKES_RATINGS.AUTO_CLEANUP_ENABLED
+      help: PLUGIN_LIKES_RATINGS.AUTO_CLEANUP_ENABLED_HELP
+      highlight: 1
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
+
+    auto_cleanup_interval_hours:
+      type: number
+      size: x-small
+      label: PLUGIN_LIKES_RATINGS.AUTO_CLEANUP_INTERVAL_HOURS
+      help: PLUGIN_LIKES_RATINGS.AUTO_CLEANUP_INTERVAL_HOURS_HELP
+      default: 24
+      validate:
+        type: int
+        min: 1
 

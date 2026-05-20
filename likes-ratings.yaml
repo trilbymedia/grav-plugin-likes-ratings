@@ -6,3 +6,7 @@ twig_template: 'partials/likes-ratings.html.twig' # The twig template to use for
 unique_ip_check: false                            # Ensures that a particular IP can only vote once
 disable_after_vote: true                          # Disable the interaction after the user has voted
 readonly: false                                   # Set to readonly to disable all interaction
+rate_limit_enabled: true                          # Limit how many votes a single IP can submit per minute
+rate_limit_per_minute: 10                         # Max votes per IP per minute when rate limiting is enabled
+auto_cleanup_enabled: true                        # Periodically purge rows with invalid ids from the database
+auto_cleanup_interval_hours: 24                   # Minimum hours between auto-cleanup sweeps

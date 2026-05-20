@@ -159,8 +159,18 @@ class LikesRatingsPlugin extends Plugin
             $type = $data['type'] ?? null;
 
             if ($id && $type) {
+                if (!Likes::isValidId($id)) {
+                    return [false, 'Invalid id', -1];
+                }
+                if (!in_array($type, ['ups', 'downs'], true)) {
+                    return [false, 'Invalid vote type', -1];
+                }
                 /** @var Likes $likes */
                 $likes = $this->grav['likes'];
+                if (!$likes->checkRateLimit($this->grav['uri']->ip())) {
+                    return [false, 'Rate limit exceeded', -1];
+                }
+                $likes->maybeCleanup();
                 $likes->mergeSavedOptions($id);
                 return $likes->add($id, $type, 1);
             }
