@@ -1,3 +1,11 @@
+# v1.2.1
+## 06/01/2026
+
+1. [](#bugfix)
+    * Fixed a duplicated label when a custom template wraps the widget, by replacing only the rating element on each vote [#5](https://github.com/trilbymedia/grav-plugin-likes-ratings/issues/5)
+    * Stopped vote clicks from being counted more than once after the first vote
+    * Removed a broken error-message assignment that never displayed anything
+
 # v1.2.0
 ## 05/20/2026
 
